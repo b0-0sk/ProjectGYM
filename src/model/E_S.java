@@ -4,15 +4,15 @@ public class E_S {
 	
 	private String movimentsID;
 	private String gymID;
-	private String dniClient;
+	private String userID; // dniClient
 	private String data;
 	private String e_s;
 	
-	public E_S(String movimentsID, String gymID, String dniClient, String data, String e_s) {
+	public E_S(String movimentsID, String gymID, String userID, String data, String e_s) {
 		super();
 		this.movimentsID = movimentsID;
 		this.gymID = gymID;
-		this.dniClient = dniClient;
+		this.userID = userID;
 		this.data = data;
 		this.e_s = e_s;
 	}
@@ -33,12 +33,12 @@ public class E_S {
 		this.gymID = gymID;
 	}
 
-	public String getDniClient() {
-		return dniClient;
+	public String getUserID() {
+		return userID;
 	}
 
-	public void setDniClient(String dniClient) {
-		this.dniClient = dniClient;
+	public void setUserID(String dniClient) {
+		this.userID = dniClient;
 	}
 
 	public String getData() {

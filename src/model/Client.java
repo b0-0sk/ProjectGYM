@@ -6,7 +6,7 @@ public class Client {
 	private String user;
 	private String surname;
 	private String password;
-	private int telf;
+	private String telf;
 	private String cp;
 	private String province;
 	private String email;
@@ -14,7 +14,7 @@ public class Client {
 	private String goodPayer;
 
 
-	public Client(String dniClient, String user, String surname, String password, int telf, String cp, String province,
+	public Client(String dniClient, String user, String surname, String password, String telf, String cp, String province,
 			String email, String iban, String goodPayer) {
 		super();
 		this.dniClient = dniClient;
@@ -70,12 +70,12 @@ public class Client {
 	}
 
 
-	public int getTelf() {
+	public String getTelf() {
 		return telf;
 	}
 
 
-	public void setTelf(int telf) {
+	public void setTelf(String telf) {
 		this.telf = telf;
 	}
 

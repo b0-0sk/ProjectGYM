@@ -4,10 +4,10 @@ public class GYMS {
 	
 	private String gymID;
 	private String name;
-	private int cp;
+	private String cp;
 	private String province;
 	
-	public GYMS(String gymID, String name, int cp, String province) {
+	public GYMS(String gymID, String name, String cp, String province) {
 		super();
 		this.gymID = gymID;
 		this.name = name;
@@ -31,11 +31,11 @@ public class GYMS {
 		this.name = name;
 	}
 
-	public int getCp() {
+	public String getCp() {
 		return cp;
 	}
 
-	public void setCp(int cp) {
+	public void setCp(String cp) {
 		this.cp = cp;
 	}
 
