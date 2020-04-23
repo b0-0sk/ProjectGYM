@@ -1,19 +1,19 @@
 package model;
 
 public class E_S {
-	
+
 	private String movimentsID;
 	private String gymID;
 	private String userID; // dniClient
-	private String data;
+	private String date;
 	private String e_s;
-	
-	public E_S(String movimentsID, String gymID, String userID, String data, String e_s) {
+
+	public E_S(String movimentsID, String gymID, String userID, String date, String e_s) {
 		super();
 		this.movimentsID = movimentsID;
 		this.gymID = gymID;
 		this.userID = userID;
-		this.data = data;
+		this.date = date;
 		this.e_s = e_s;
 	}
 
@@ -41,12 +41,12 @@ public class E_S {
 		this.userID = dniClient;
 	}
 
-	public String getData() {
-		return data;
+	public String getDate() {
+		return date;
 	}
 
-	public void setData(String data) {
-		this.data = data;
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 	public String getE_s() {
@@ -56,6 +56,5 @@ public class E_S {
 	public void setE_s(String e_s) {
 		this.e_s = e_s;
 	}
-	
-	
+
 }

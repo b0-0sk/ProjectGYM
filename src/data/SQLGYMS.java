@@ -37,7 +37,7 @@ public class SQLGYMS {
 
 			Class.forName("org.sqlite.JDBC");
 			
-			c = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\b0_0sk\\git\\ProjectGYM\\Server\\gym.db");
+			c = DriverManager.getConnection("jdbc:sqlite:E:\\DAM\\CODE\\git\\Java\\ProjectGYM\\Server\\gym.db");
 
 			System.out.println("Exito en la primera conexion con la base de datos");
 

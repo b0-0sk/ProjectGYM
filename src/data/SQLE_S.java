@@ -32,7 +32,7 @@ public class SQLE_S {
 
 			Class.forName("org.sqlite.JDBC");
 			
-			c = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\b0_0sk\\git\\ProjectGYM\\Server\\gym.db");
+			c = DriverManager.getConnection("jdbc:sqlite:E:\\DAM\\CODE\\git\\Java\\ProjectGYM\\Server\\gym.db");
 
 			System.out.println("Exito en la primera conexion con la base de datos");
 
@@ -57,7 +57,7 @@ public class SQLE_S {
 				+"\""+e_s.getMovimentsID()+ "\""+","
 				+"\""+e_s.getGymID()+ "\""+","
 				+"\""+e_s.getUserID()+ "\""+","
-				+"\""+e_s.getData()+ "\""+","
+				+"\""+e_s.getDate()+ "\""+","
 				+"\""+e_s.getE_s()+"\")";
 		
 		
@@ -86,6 +86,7 @@ public class SQLE_S {
 
 	}
 	
+	
 	public void updateE_S(E_S e_s) throws SQLException{
 		
 		
@@ -95,7 +96,7 @@ public class SQLE_S {
 				+ " movimentsID ='" + e_s.getMovimentsID()
 				+ "', gymID ='" + e_s.getGymID()
 				+ "', dniClient ='" + e_s.getUserID()
-				+ "', data ='" + e_s.getData()
+				+ "', data ='" + e_s.getDate()
 				+ "', e_s ='" + e_s.getE_s()
 				+ "' WHERE movimentsID ='" + e_s.getMovimentsID()+ "';";
 		
@@ -148,17 +149,25 @@ public class SQLE_S {
 		}
 	
 	}
+	
 
-	public ArrayList<E_S> queryE_S() throws SQLException {
+	public ArrayList<E_S> queryE_S(String start ,String end) throws SQLException {
 
 		conectar();
 
 		sentencia = c.createStatement();
-
-		String consultaSql = "SELECT * FROM E_S ;";
-
+		
+		String consultaSql = "SELECT * from E_S ;";
+		
+		if (start != "" && end != "") {
+			consultaSql = "SELECT * from E_S WHERE date BETWEEN '"+start+"' AND '"+end+"';";
+		}
+		
+		System.out.println(consultaSql);
 		try {
+		     
 			ResultSet rs = sentencia.executeQuery(consultaSql);
+
 			while (rs.next()) {
 
 				
@@ -166,7 +175,7 @@ public class SQLE_S {
 						rs.getString("movimentsID"),
 						rs.getString("gymID"),
 						rs.getString("dniClient"),
-						rs.getString("data"),
+						rs.getString("date"),
 						rs.getString("e_s")));
 				
 			}	

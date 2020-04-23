@@ -5,7 +5,21 @@ import java.awt.BorderLayout;
 
 import java.awt.FlowLayout;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -49,6 +63,8 @@ import com.toedter.calendar.JYearChooser;
 import com.toedter.calendar.JCalendar;
 import com.toedter.components.JLocaleChooser;
 import com.toedter.calendar.JMonthChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
+
 import javax.swing.JDesktopPane;
 import javax.swing.JList;
 import java.awt.Font;
@@ -58,6 +74,7 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
@@ -124,6 +141,10 @@ public class frmAdmin extends JFrame {
     private JLabel lblFecha;
     private JLabel lblAdminView;
 	
+    private List<LocalDate> datesAdmin;
+    private String dateDesde;
+    private String dateHasta;
+    
 	/**
 	 * Launch the application.
 	 */
@@ -172,7 +193,8 @@ public class frmAdmin extends JFrame {
 		addListenners();
 		
 		//Refrescar la tabla
-		update();
+		update("","");
+
 		
 	}
 	
@@ -396,6 +418,12 @@ public class frmAdmin extends JFrame {
 		    dateChooserHasta = new JDateChooser();
 		    panelEscogerFecha.add(dateChooserHasta, "4, 6, 14, 1, fill, center");
 		    
+		    JTextFieldDateEditor editorDesde = (JTextFieldDateEditor) dateChooserDesde.getDateEditor();
+			JTextFieldDateEditor editorHasta = (JTextFieldDateEditor) dateChooserHasta.getDateEditor();
+
+			editorHasta.setEditable(false);
+			editorDesde.setEditable(false);
+		    
 		    /*
 		     * 
 		     * JLabels
@@ -464,8 +492,6 @@ public class frmAdmin extends JFrame {
 		    lblAdminView.setFont(new Font("Tahoma", Font.BOLD, 30));
 		    panelAdminView.add(lblAdminView);
 		    
-		    
-		    
 		    /*
 		     *
 		     * Components
@@ -485,7 +511,6 @@ public class frmAdmin extends JFrame {
 		     */
 		    
 		    btnFiltrar = new JButton("Filtrar");
-		    btnFiltrar.setEnabled(false);
 		    panelEscogerFecha.add(btnFiltrar, "4, 8");
 		    
 		    btnAgregar = new JButton("Agregar");
@@ -554,15 +579,15 @@ public class frmAdmin extends JFrame {
 	
 
 	
-	public void update() throws SQLException {
+	public void update(String s,String e) throws SQLException {
 		
 		modelCalendar.setRowCount(0);
 
 		sqlE_S = new SQLE_S();
-		searchE_S = sqlE_S.queryE_S();
-		
+		searchE_S = sqlE_S.queryE_S(s,e);
+	
 		sqlClient = new SQLClients();
-		searchClients = sqlClient.queryClients();
+		
 		
 	  	
 		/**
@@ -574,30 +599,109 @@ public class frmAdmin extends JFrame {
 		
 		for (int i = 0; i < searchE_S.size(); i++) {
 			
+			//Formating the dato to look much better
+			String dateFormated = searchE_S.get(i).getDate().substring(0,10);	
+			
+			//To synchronize the userID of Client Table and the data of E_S Table
+			searchClients = sqlClient.queryClients(searchE_S.get(i).getUserID());
+
 			modelCalendar.addRow(new Object[] {
-	
+					
 				searchE_S.get(i).getGymID(),
 				searchE_S.get(i).getMovimentsID(),
 				searchE_S.get(i).getUserID(),
 				searchClients.get(i).getUser(),
 				searchE_S.get(i).getE_s(),
-				searchE_S.get(i).getData()
+				dateFormated
 	
 			});
 			
 			
-		}
-	  	
-	  	
-	  	/*
-	  	for (int i = 0; i < 50; i++) {
-	  		modelCalendar.addRow(new Object[] {null,null,null,null,null,null,null});
-		}*/		  	
-	 
+		}	 
+	}
+	
+	/*
+	 * 
+	 * Getting dates between the client search
+	 * 
+	 */
+	
+	public static long getDatesBetweenUsing(LocalDate startDate, LocalDate endDate) { // List<LocalDate>  
+		  
+	    long numOfDaysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+	    return numOfDaysBetween;
+	    
+	}
+	
+	public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
+	    return dateToConvert.toInstant()
+	      .atZone(ZoneId.systemDefault())
+	      .toLocalDate();
+	}
+	
+	/*public static List<LocalDate> getDatesBetweenUsing(LocalDate startDate, LocalDate endDate) { // List<LocalDate>  
+		  
+	    long numOfDaysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+	    
+	    System.out.println(numOfDaysBetween);
+	    return IntStream.iterate(0, i -> i + 1)
+	      .limit(numOfDaysBetween+1)
+	      .mapToObj(i -> startDate.plusDays(i))
+	      .collect(Collectors.toList());
+	    
 	}
 	
 	
+	
+	public void daysBetween(Date s, Date e) {
+		
+		datesAdmin = new ArrayList<>();
+		
+		datesAdmin = getDatesBetweenUsing(
+				convertToLocalDateViaInstant(s),
+				convertToLocalDateViaInstant(e));					
+		
+		ArrayList<String> dateAdminFormated = new ArrayList<String>();
+		
+		for (int i = 0; i < datesAdmin.size(); i++) {
+			
+			dateAdminFormated.add(datesAdmin.get(i).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+			
+		}
+		
+		for (int i = 0; i < datesAdmin.size(); i++) {
+			
+			System.out.println(dateAdminFormated.get(i));
+			
+		}
+				
+	}
+	
+	
+	/*
+	 * 
+	 * LISTENNERS
+	 * 
+	 */
+	
+	
 	public void addListenners() {
+		
+		panelEscogerFecha.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					btnFiltrar.setEnabled(true);
+	
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
 		
 		btnFiltrar.addMouseListener(new MouseAdapter() {
 			
@@ -605,8 +709,106 @@ public class frmAdmin extends JFrame {
 			
 				try {
 					
-					if (btnFiltrar.isEnabled()) {
-						System.out.println("Funciono");
+					Date dateFromDateChooserDesde = dateChooserDesde.getDate();
+					dateDesde = String.format("%1$tY-%1$tm-%1$td 0:00:0", dateFromDateChooserDesde);
+
+					Date dateFromDateChooserHatsa = dateChooserHasta.getDate();
+					dateHasta = String.format("%1$tY-%1$tm-%1$td 0:00:0", dateFromDateChooserHatsa);
+							        
+					//daysBetween(dateFromDateChooserDesde,dateFromDateChooserHatsa);
+			        
+					if (getDatesBetweenUsing(convertToLocalDateViaInstant(dateFromDateChooserDesde),convertToLocalDateViaInstant(dateFromDateChooserHatsa)) >= 0) {
+				        
+						update(dateDesde,dateHasta);
+
+					}else {
+						
+						System.out.println("ERROR INTRODUZCA CORRECTAMENTE LA FECHA");
+						
+					}
+					
+			        
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
+		
+		btnModificar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					if (btnModificar.isEnabled()) {
+						System.out.println("Activando BUTTON Modificar");
+
+					}else {
+						System.out.println("No funciono");
+					}
+	
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
+		
+		btnFichar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					if (btnFichar.isEnabled()) {
+						System.out.println("Activando BUTTON Fichar");
+
+					}else {
+						System.out.println("No funciono");
+					}
+		
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
+		
+		btnEliminar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					if (btnEliminar.isEnabled()) {
+						System.out.println("Activando BUTTON Eliminar");
+
+					}else {
+						System.out.println("No funciono");
+					}
+	
+					
+					
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
+		
+		btnAgregar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					if (btnAgregar.isEnabled()) {
+						System.out.println("Activando BUTTON Agregar");
 
 					}else {
 						System.out.println("No funciono");
@@ -630,7 +832,7 @@ public class frmAdmin extends JFrame {
 					
 					if (btnAplicar.isEnabled()) {
 						
-						System.out.println("Activando BUTTON FILTRAR");
+						System.out.println("Activando BUTTON Aplicar");
 						
 						btnFiltrar.setEnabled(true);
 						
@@ -647,10 +849,7 @@ public class frmAdmin extends JFrame {
 			
 			}
 		});
-		
-		
+			
 	}
-
-	
 }
 

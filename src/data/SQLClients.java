@@ -4,6 +4,7 @@ import java.sql.*;
 
 import java.sql.Connection;
 import model.Client;
+import model.E_S;
 
 import java.sql.DriverManager;
 
@@ -27,7 +28,7 @@ public class SQLClients {
 
 			Class.forName("org.sqlite.JDBC");
 			
-			c = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\b0_0sk\\git\\ProjectGYM\\Server\\gym.db");
+			c = DriverManager.getConnection("jdbc:sqlite:E:\\DAM\\CODE\\git\\Java\\ProjectGYM\\Server\\gym.db");
 
 			System.out.println("Exito en la primera conexion con la base de datos");
 
@@ -138,13 +139,13 @@ public class SQLClients {
 
 
 
-	public ArrayList<Client> queryClients() throws SQLException {
+	public ArrayList<Client> queryClients(String dniClient) throws SQLException {
 
 		conectar();
 
 		sentencia = c.createStatement();
 
-		String consultaSql = "SELECT * FROM Client ;";
+		String consultaSql = "SELECT * FROM Client WHERE dniClient = '"+dniClient+"';";
 
 		try {
 			ResultSet rs = sentencia.executeQuery(consultaSql);

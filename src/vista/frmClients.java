@@ -44,6 +44,8 @@ import java.awt.Font;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import java.awt.SystemColor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
@@ -348,6 +350,52 @@ public class frmClients extends JDialog {
 	}
 	
 	public void addListenners() {
+		
+		btnFichar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					if (btnFichar.isEnabled()) {
+						System.out.println("Activando BUTTON FILTRAR");
+
+					}else {
+						System.out.println("No funciono");
+					}
+	
+					
+					
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
+		
+		btnFiltrar.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+			
+				try {
+					
+					if (btnFiltrar.isEnabled()) {
+						System.out.println("Activando BUTTON FILTRAR");
+
+					}else {
+						System.out.println("No funciono");
+					}
+	
+					
+					
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
 		
 	}
 	
