@@ -96,9 +96,9 @@ public class SQLE_S {
 				+ " movimentsID ='" + e_s.getMovimentsID()
 				+ "', gymID ='" + e_s.getGymID()
 				+ "', dniClient ='" + e_s.getUserID()
-				+ "', data ='" + e_s.getDate()
+				+ "', date ='" + e_s.getDate()
 				+ "', e_s ='" + e_s.getE_s()
-				+ "' WHERE movimentsID ='" + e_s.getMovimentsID()+ "';";
+				+ "' WHERE movimentsID ='" + e_s.getUserID()+ "';";
 		
 		try{
 			
@@ -115,9 +115,7 @@ public class SQLE_S {
 
 			System.out.println("Datos actualizados");
 			  
-		}
-		catch (SQLException e)
-		{
+		}catch (SQLException e) {
 			System.out.println(e.getMessage());
 
 		}
@@ -201,13 +199,4 @@ public class SQLE_S {
 
 
 	}
-
-
-
-	
-
-
-
-	
-
 }

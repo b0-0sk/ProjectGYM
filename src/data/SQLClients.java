@@ -77,18 +77,24 @@ public class SQLClients {
 	
 	public void updateClient(Client client) throws SQLException{
 				
+//		String sqlUpdate ="UPDATE Client "
+//				+ "SET "
+//				+ "dniClient ='" + client.getDniClient()
+//				+ "', user ='" + client.getUser()
+//				+ "', surname ='" + client.getSurname()
+//				+ "', password ='" + client.getPassword()
+//				+ "', telf ='" + client.getTelf()
+//				+ "', cp ='" + client.getCp()
+//				+ "', province='" + client.getProvince()
+//				+ "', email ='" + client.getEmail()
+//				+ "', iban ='" + client.getIban()
+//				+ "', goodPayer ='" + client.getGoodPayer()
+//				+ "' WHERE dniClient ='" + client.getDniClient() + "';";
+		
 		String sqlUpdate ="UPDATE Client "
 				+ "SET "
 				+ "dniClient ='" + client.getDniClient()
 				+ "', user ='" + client.getUser()
-				+ "', surname ='" + client.getSurname()
-				+ "', password ='" + client.getPassword()
-				+ "', telf ='" + client.getTelf()
-				+ "', cp ='" + client.getCp()
-				+ "', province='" + client.getProvince()
-				+ "', email ='" + client.getEmail()
-				+ "', iban ='" + client.getIban()
-				+ "', goodPayer ='" + client.getGoodPayer()
 				+ "' WHERE dniClient ='" + client.getDniClient() + "';";	
 		
 		try{
@@ -146,7 +152,7 @@ public class SQLClients {
 		sentencia = c.createStatement();
 
 		String consultaSql = "SELECT * FROM Client WHERE dniClient = '"+dniClient+"';";
-
+		
 		try {
 			ResultSet rs = sentencia.executeQuery(consultaSql);
 			while (rs.next()) {

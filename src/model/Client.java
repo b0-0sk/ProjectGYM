@@ -28,6 +28,17 @@ public class Client {
 		this.iban = iban;
 		this.goodPayer = goodPayer;
 	}
+	
+	/***
+	 * SQL UPDATE
+	 * @return
+	 */
+	
+	public Client(String dniClient, String user) {
+		super();
+		this.dniClient = dniClient;
+		this.user = user;
+	}
 
 
 	public String getDniClient() {

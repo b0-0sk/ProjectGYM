@@ -75,6 +75,8 @@ import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
@@ -125,6 +127,11 @@ public class frmAdmin extends JFrame {
     private JPanel panelAcciones;
     private JPanel panelCampos;
     
+	private static ArrayList<Client> sqlFieldClient = new ArrayList<Client>();
+	private static ArrayList<E_S> sqlFieldE_S = new ArrayList<E_S>();
+	private String dniClient;
+	private ArrayList<String> fieldsAdminToUpdate;
+	
     private JLabel label;
     private JLabel lblEscogeLaFecha;
     private JLabel lblDesde;
@@ -133,17 +140,23 @@ public class frmAdmin extends JFrame {
     private JLabel lblAccions;
     private JLabel lblIcono;
     private JLabel lblCampos;
+    
     private JLabel lblGymId;
     private JLabel lblMovimentId;
     private JLabel lblUser;
     private JLabel lblClientId;
     private JLabel lblEs;
     private JLabel lblFecha;
+    
     private JLabel lblAdminView;
 	
+    
+    Date dateFromDateChooserDesde;
+    Date dateFromDateChooserHasta;
     private List<LocalDate> datesAdmin;
     private String dateDesde;
     private String dateHasta;
+    
     
 	/**
 	 * Launch the application.
@@ -194,13 +207,21 @@ public class frmAdmin extends JFrame {
 		
 		//Refrescar la tabla
 		update("","");
+		
 
 		
 	}
 	
 	public void setBooleansDate(String s) {
 		
+		
+		if (s != "true") {
+			dateChooserDesde.setCalendar(null);
+			dateChooserHasta.setCalendar(null);
+		}
+		
 		btnFiltrar.setEnabled((s == "true")? true:false);
+
 		
 	}
 	
@@ -215,6 +236,16 @@ public class frmAdmin extends JFrame {
 	
 	public void setBooleansFields(String s) {
 		
+		
+		lblGymId.setEnabled((s == "true")? true:false);
+	    lblMovimentId.setEnabled((s == "true")? true:false);
+	    lblUser.setEnabled((s == "true")? true:false);
+	    lblClientId.setEnabled((s == "true")? true:false);
+	    lblEs.setEnabled((s == "true")? true:false);
+	    lblFecha.setEnabled((s == "true")? true:false);
+		
+	    
+	    
 		gymidField.setEnabled((s == "true")? true:false);
 		movimentidField.setEnabled((s == "true")? true:false);
 		userField.setEnabled((s == "true")? true:false);
@@ -224,6 +255,42 @@ public class frmAdmin extends JFrame {
 		
 		btnAplicar.setEnabled((s == "true")? true:false);
 		
+	}
+	
+	public void addFieldsInArray() {
+		fieldsAdminToUpdate = new ArrayList<String>();
+
+	    for (int i = 0; i < gymTable.getColumnCount(); i++) {
+	    	fieldsAdminToUpdate.add(modelCalendar.getValueAt(gymTable.getSelectedRow(),i).toString());
+		}
+	    
+	    for (int i = 0; i < fieldsAdminToUpdate.size(); i++) {
+			System.out.print(fieldsAdminToUpdate.get(i) + " ");
+		}
+	    
+	}
+	
+	public void fillFields() {
+		
+		
+		gymidField.setText(modelCalendar.getValueAt(gymTable.getSelectedRow(),0).toString());
+		movimentidField.setText(modelCalendar.getValueAt(gymTable.getSelectedRow(),1).toString());
+		userField.setText(modelCalendar.getValueAt(gymTable.getSelectedRow(),2).toString());
+		clientidField.setText(modelCalendar.getValueAt(gymTable.getSelectedRow(),3).toString());
+		e_sField.setText(modelCalendar.getValueAt(gymTable.getSelectedRow(),4).toString());
+		dateField.setText(modelCalendar.getValueAt(gymTable.getSelectedRow(),5).toString());
+
+		
+	}
+	
+	public void fillNullFields() {
+		
+		gymidField.setText(null);
+		movimentidField.setText(null);
+		userField.setText(null);
+		clientidField.setText(null);
+		e_sField.setText(null);
+		dateField.setText(null);
 	}
 	
 	
@@ -413,9 +480,11 @@ public class frmAdmin extends JFrame {
 		     */
 		    
 		    dateChooserDesde = new JDateChooser();
+		    dateChooserDesde.setToolTipText("");
 		    panelEscogerFecha.add(dateChooserDesde, "4, 4, 14, 1, fill, center");
 		    
 		    dateChooserHasta = new JDateChooser();
+		    dateChooserHasta.setToolTipText("");
 		    panelEscogerFecha.add(dateChooserHasta, "4, 6, 14, 1, fill, center");
 		    
 		    JTextFieldDateEditor editorDesde = (JTextFieldDateEditor) dateChooserDesde.getDateEditor();
@@ -511,6 +580,7 @@ public class frmAdmin extends JFrame {
 		     */
 		    
 		    btnFiltrar = new JButton("Filtrar");
+		    btnFiltrar.setEnabled(false);
 		    panelEscogerFecha.add(btnFiltrar, "4, 8");
 		    
 		    btnAgregar = new JButton("Agregar");
@@ -579,50 +649,11 @@ public class frmAdmin extends JFrame {
 	
 
 	
-	public void update(String s,String e) throws SQLException {
-		
-		modelCalendar.setRowCount(0);
-
-		sqlE_S = new SQLE_S();
-		searchE_S = sqlE_S.queryE_S(s,e);
 	
-		sqlClient = new SQLClients();
-		
-		
-	  	
-		/**
-		 * 
-		 * Afegint les dades en el model de la taula Admin
-		 * 
-		 */
-		
-		
-		for (int i = 0; i < searchE_S.size(); i++) {
-			
-			//Formating the dato to look much better
-			String dateFormated = searchE_S.get(i).getDate().substring(0,10);	
-			
-			//To synchronize the userID of Client Table and the data of E_S Table
-			searchClients = sqlClient.queryClients(searchE_S.get(i).getUserID());
-
-			modelCalendar.addRow(new Object[] {
-					
-				searchE_S.get(i).getGymID(),
-				searchE_S.get(i).getMovimentsID(),
-				searchE_S.get(i).getUserID(),
-				searchClients.get(i).getUser(),
-				searchE_S.get(i).getE_s(),
-				dateFormated
-	
-			});
-			
-			
-		}	 
-	}
 	
 	/*
 	 * 
-	 * Getting dates between the client search
+	 * DATES : Getting dates between the client search
 	 * 
 	 */
 	
@@ -651,8 +682,6 @@ public class frmAdmin extends JFrame {
 	    
 	}
 	
-	
-	
 	public void daysBetween(Date s, Date e) {
 		
 		datesAdmin = new ArrayList<>();
@@ -675,6 +704,41 @@ public class frmAdmin extends JFrame {
 			
 		}
 				
+	}*/
+	
+	public void saveUserDniTableLine() {
+		
+		dniClient = modelCalendar.getValueAt(gymTable.getSelectedRow(),3).toString();
+		//System.out.println(dniClient);
+		
+	}
+	
+	public void updateGymTable() {
+		
+		sqlClient = new SQLClients();
+		sqlE_S = new SQLE_S();
+
+		try {
+			
+			Client c = new Client(
+					fieldsAdminToUpdate.get(2).toString(),
+					fieldsAdminToUpdate.get(3).toString());
+			
+			E_S e_s = new E_S(
+					fieldsAdminToUpdate.get(0).toString(),
+					fieldsAdminToUpdate.get(1).toString(),
+					fieldsAdminToUpdate.get(2).toString(),
+					fieldsAdminToUpdate.get(4).toString()+" 0:00:0",
+					fieldsAdminToUpdate.get(5).toString());		
+			
+			sqlClient.updateClient(c);
+			sqlE_S.updateE_S(e_s);
+
+			
+		} catch (Exception e2) {
+			// TODO: handle exception
+		}
+		
 	}
 	
 	
@@ -684,17 +748,23 @@ public class frmAdmin extends JFrame {
 	 * 
 	 */
 	
-	
 	public void addListenners() {
 		
-		panelEscogerFecha.addMouseListener(new MouseAdapter() {
+		gymTable.addMouseListener(new MouseAdapter() {
 			
 			public void mouseClicked(final MouseEvent e) {
 			
 				try {
+
+					if (btnFiltrar.isEnabled()) setBooleansDate("false");
+					if (panelCampos.isEnabled()) setBooleansDate("false");
 					
-					btnFiltrar.setEnabled(true);
-	
+					setBooleansActions("true");
+					
+					addFieldsInArray();
+
+					saveUserDniTableLine();
+
 				} catch (Exception e2) {
 					// TODO: handle exception
 					
@@ -703,21 +773,65 @@ public class frmAdmin extends JFrame {
 			}
 		});
 		
+		dateChooserDesde.getCalendarButton().addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(final MouseEvent e) {
+					
+					
+				try {
+				
+					setBooleansActions("false");
+					setBooleansFields("false");
+					fillNullFields();
+				
+				} catch (Exception e2) {
+					// TODO: handle exception
+					
+				}
+			
+			}
+		});
+		
+		dateChooserDesde.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
+			
+			        @Override
+			        public void propertyChange(PropertyChangeEvent e) {
+			        	
+			        	dateChooserHasta.getDateEditor().addPropertyChangeListener(
+			    			    new PropertyChangeListener() {
+			    			        @Override
+			    			        public void propertyChange(PropertyChangeEvent e) {
+			    			        	
+			    			        	if ("date".equals(e.getPropertyName())) {
+			    			        		
+			    			        		if (!btnFiltrar.isEnabled()) setBooleansDate("true");    					
+			    						}  
+			    			        }		
+			    		});
+			        }				
+	    });
+		
+		
+		
 		btnFiltrar.addMouseListener(new MouseAdapter() {
 			
 			public void mouseClicked(final MouseEvent e) {
 			
 				try {
 					
-					Date dateFromDateChooserDesde = dateChooserDesde.getDate();
+					gymTable.setEnabled(true);
+					
+					//Date
+					dateFromDateChooserDesde = dateChooserDesde.getDate();
+					//String
 					dateDesde = String.format("%1$tY-%1$tm-%1$td 0:00:0", dateFromDateChooserDesde);
 
-					Date dateFromDateChooserHatsa = dateChooserHasta.getDate();
-					dateHasta = String.format("%1$tY-%1$tm-%1$td 0:00:0", dateFromDateChooserHatsa);
+					dateFromDateChooserHasta = dateChooserHasta.getDate();
+					dateHasta = String.format("%1$tY-%1$tm-%1$td 0:00:0", dateFromDateChooserHasta);
 							        
 					//daysBetween(dateFromDateChooserDesde,dateFromDateChooserHatsa);
 			        
-					if (getDatesBetweenUsing(convertToLocalDateViaInstant(dateFromDateChooserDesde),convertToLocalDateViaInstant(dateFromDateChooserHatsa)) >= 0) {
+					if (getDatesBetweenUsing(convertToLocalDateViaInstant(dateFromDateChooserDesde),convertToLocalDateViaInstant(dateFromDateChooserHasta)) >= 0) {
 				        
 						update(dateDesde,dateHasta);
 
@@ -743,7 +857,17 @@ public class frmAdmin extends JFrame {
 				try {
 					
 					if (btnModificar.isEnabled()) {
-						System.out.println("Activando BUTTON Modificar");
+						
+						
+						
+						setBooleansFields("true");						
+						fillFields();		
+						
+						
+						gymTable.setEnabled(false);
+						
+									
+
 
 					}else {
 						System.out.println("No funciono");
@@ -808,17 +932,17 @@ public class frmAdmin extends JFrame {
 				try {
 					
 					if (btnAgregar.isEnabled()) {
-						System.out.println("Activando BUTTON Agregar");
-
+						
+						setBooleansFields("true");						
+						fillFields();
+						updateGymTable();
+						
 					}else {
 						System.out.println("No funciono");
 					}
 	
-					
-					
 				} catch (Exception e2) {
-					// TODO: handle exception
-					
+					// TODO: handle exception				
 				}
 			
 			}
@@ -832,9 +956,8 @@ public class frmAdmin extends JFrame {
 					
 					if (btnAplicar.isEnabled()) {
 						
-						System.out.println("Activando BUTTON Aplicar");
+						updateGymTable();
 						
-						btnFiltrar.setEnabled(true);
 						
 					}else {
 						System.out.println("No funciono");
@@ -850,6 +973,47 @@ public class frmAdmin extends JFrame {
 			}
 		});
 			
+	}
+	
+	public void update(String s,String e) throws SQLException {
+		
+		modelCalendar.setRowCount(0);
+
+		sqlE_S = new SQLE_S();
+		searchE_S = sqlE_S.queryE_S(s,e);
+	
+		sqlClient = new SQLClients();
+		
+		
+	  	
+		/**
+		 * 
+		 * Afegint les dades en el model de la taula Admin
+		 * 
+		 */
+		
+		
+		for (int i = 0; i < searchE_S.size(); i++) {
+			
+			//Formating the dato to look much better
+			String dateFormated = searchE_S.get(i).getDate().substring(0,10);	
+			
+			//To synchronize the userID of Client Table and the data of E_S Table
+			searchClients = sqlClient.queryClients(searchE_S.get(i).getUserID());
+
+			modelCalendar.addRow(new Object[] {
+					
+				searchE_S.get(i).getGymID(),
+				searchE_S.get(i).getMovimentsID(),
+				searchE_S.get(i).getUserID(),
+				searchClients.get(i).getUser(),
+				searchE_S.get(i).getE_s(),
+				dateFormated
+	
+			});
+			
+			
+		}	 
 	}
 }
 
