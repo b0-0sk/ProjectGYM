@@ -4,35 +4,34 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.SpringLayout;
+
+import data.SQLGYMS;
+import model.GYMS;
+
 import java.awt.Color;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.FormSpecs;
 import javax.swing.JLabel;
-import javax.swing.ImageIcon;
-import java.awt.Font;
-import java.awt.Component;
-import javax.swing.Box;
 import javax.swing.JTextField;
+import java.awt.Font;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPasswordField;
 
 public class frmLogin extends JDialog {
-
+	
 	private final JPanel contentPanel = new JPanel();
-	private JPanel panel;
 	
+	private SQLGYMS sqlGYMS;
+	
+	private static ArrayList<GYMS> searchGYMS = new ArrayList<GYMS>();
+    private JComboBox<String> gymsNames;
 	private JTextField user;
-	private JTextField password;
-	
-	private JLabel lblIcon;
-	private JLabel lblLogin;
-	private JLabel lblUser;
-	private JLabel lblPassword;
-	
+	private JPasswordField passwordField;
 
 	/**
 	 * Launch the application.
@@ -49,88 +48,100 @@ public class frmLogin extends JDialog {
 
 	/**
 	 * Create the dialog.
+	 * @throws SQLException 
 	 */
-	public frmLogin() {
+	public frmLogin() throws SQLException {
 		
+		addElements();
+		
+		//Desplegable Gyms
+		addGyms();
+	}
+	
+	
+	public void addElements(){
+		setBackground(Color.LIGHT_GRAY);
+		setResizable(false);
+		getContentPane().setBackground(Color.LIGHT_GRAY);
 		setBounds(100, 100, 450, 300);
-		getContentPane().setLayout(new BorderLayout());
+		getContentPane().setLayout(null);
+		contentPanel.setBounds(0, 0, 444, 20);
 		contentPanel.setBackground(Color.LIGHT_GRAY);
+		contentPanel.setLayout(new FlowLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		SpringLayout sl_contentPanel = new SpringLayout();
-		contentPanel.setLayout(sl_contentPanel);
+		getContentPane().add(contentPanel);
+		{
+			JPanel buttonPane = new JPanel();
+			buttonPane.setBounds(0, 238, 444, 33);
+			buttonPane.setBackground(Color.LIGHT_GRAY);
+			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			getContentPane().add(buttonPane);
+			{
+				JButton okButton = new JButton("OK");
+				okButton.setActionCommand("OK");
+				buttonPane.add(okButton);
+				getRootPane().setDefaultButton(okButton);
+			}
+			{
+				JButton cancelButton = new JButton("Cancel");
+				cancelButton.setActionCommand("Cancel");
+				buttonPane.add(cancelButton);
+			}
+		}
 		
-		/*
-		 * 
-		 * JPanel
-		 * 
-		 */
+		JLabel lblUser = new JLabel("User:");
+		lblUser.setFont(new Font("Tahoma", Font.BOLD, 21));
+		lblUser.setBounds(154, 107, 56, 28);
+		getContentPane().add(lblUser);
 		
-		panel = new JPanel();
-		sl_contentPanel.putConstraint(SpringLayout.NORTH, panel, 10, SpringLayout.NORTH, contentPanel);
-		sl_contentPanel.putConstraint(SpringLayout.WEST, panel, 20, SpringLayout.WEST, contentPanel);
-		sl_contentPanel.putConstraint(SpringLayout.SOUTH, panel, -15, SpringLayout.SOUTH, contentPanel);
-		sl_contentPanel.putConstraint(SpringLayout.EAST, panel, -21, SpringLayout.EAST, contentPanel);
-		panel.setBackground(Color.LIGHT_GRAY);
-		contentPanel.add(panel);
-		panel.setLayout(new FormLayout(new ColumnSpec[] {
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("default:grow"),
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,},
-			new RowSpec[] {
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,}));
-		
-		/*
-		 * 
-		 * JLabel
-		 * 
-		 */
-		
-		lblIcon = new JLabel("");
-		lblIcon.setIcon(new ImageIcon("C:\\Users\\b0_0sk\\git\\ProjectGYM\\Icon\\Login\\android-icon-72x72.png"));
-		panel.add(lblIcon);
-		
-		lblLogin = new JLabel("LOGIN");
-		lblLogin.setFont(new Font("Tahoma", Font.BOLD, 22));
-		panel.add(lblLogin, "4, 2");
-		
-		lblUser = new JLabel("User:");
-		lblUser.setFont(new Font("Tahoma", Font.BOLD, 18));
-		panel.add(lblUser, "4, 4, right, default");
-		
-		lblPassword = new JLabel("Password:");
-		lblPassword.setFont(new Font("Tahoma", Font.BOLD, 18));
-		panel.add(lblPassword, "4, 6, right, default");
-		
-		/*
-		 * 
-		 * TextFields
-		 * 
-		 */
+		JLabel lblPassword = new JLabel("Password:");
+		lblPassword.setFont(new Font("Tahoma", Font.BOLD, 21));
+		lblPassword.setBounds(98, 146, 119, 19);
+		getContentPane().add(lblPassword);
 		
 		user = new JTextField();
-		panel.add(user, "6, 4, 7, 1, fill, default");
 		user.setColumns(10);
+		user.setBounds(227, 115, 153, 20);
+		getContentPane().add(user);
 		
-		password = new JTextField();
-		panel.add(password, "6, 6, 7, 1, fill, default");
-		password.setColumns(10);
+		JLabel label = new JLabel("");
+		label.setIcon(new ImageIcon("E:\\DAM\\CODE\\git\\Java\\ProjectGYM\\Icon\\Login\\android-icon-72x72.png"));
+		label.setBounds(10, 22, 78, 78);
+		getContentPane().add(label);
+		
+		JLabel lblLogin = new JLabel("LOGIN");
+		lblLogin.setFont(new Font("Tahoma", Font.BOLD, 16));
+		lblLogin.setBounds(98, 53, 59, 14);
+		getContentPane().add(lblLogin);
+		
+		passwordField = new JPasswordField();
+		passwordField.setBounds(227, 149, 153, 20);
+		getContentPane().add(passwordField);
+		
+		gymsNames = new JComboBox();
+		gymsNames.setBounds(227, 180, 153, 20);
+		getContentPane().add(gymsNames);
+		
+		JLabel lblGym = new JLabel("Gym:");
+		lblGym.setFont(new Font("Tahoma", Font.BOLD, 21));
+		lblGym.setBounds(154, 181, 63, 19);
+		getContentPane().add(lblGym);
+	}
+	
+	public void addGyms() throws SQLException {
+
+		sqlGYMS = new SQLGYMS();
+		searchGYMS = sqlGYMS.queryGYMS();
+			
+		/**
+		 * 
+		 * Afegint les dades en el desplegable GYM
+		 * 
+		 */
+		
+		for (int i = 0; i < searchGYMS.size(); i++) {
+			gymsNames.addItem(searchGYMS.get(i).getName().toString());
+		}
 		
 	}
 }

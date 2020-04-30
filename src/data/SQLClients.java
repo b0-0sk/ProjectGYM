@@ -107,9 +107,10 @@ public class SQLClients {
 			sentencia.close();
 			c.close();
 
-			System.out.println("Datos actualizados");		  
-		}catch (SQLException e)
-		{
+			System.out.println("Datos actualizados");
+			
+		}catch (SQLException e){
+			
 			System.out.println(e.getMessage());
 
 		}
@@ -153,6 +154,11 @@ public class SQLClients {
 
 		String consultaSql = "SELECT * FROM Client WHERE dniClient = '"+dniClient+"';";
 		
+		if (dniClient.length()==0) {
+			consultaSql = "SELECT * FROM Client ;";
+			System.out.println();
+		}
+		System.out.println(consultaSql);
 		try {
 			ResultSet rs = sentencia.executeQuery(consultaSql);
 			while (rs.next()) {

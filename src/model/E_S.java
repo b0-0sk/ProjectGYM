@@ -16,6 +16,14 @@ public class E_S {
 		this.date = date;
 		this.e_s = e_s;
 	}
+	
+	public E_S(String gymID, String userID, String date, String e_s) {
+		super();
+		this.gymID = gymID;
+		this.userID = userID;
+		this.date = date;
+		this.e_s = e_s;
+	}
 
 
 	public String getMovimentsID() {

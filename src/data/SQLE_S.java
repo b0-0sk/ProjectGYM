@@ -149,19 +149,28 @@ public class SQLE_S {
 	}
 	
 
-	public ArrayList<E_S> queryE_S(String start ,String end) throws SQLException {
+	public ArrayList<E_S> queryE_S(String start ,String end,String dniClient) throws SQLException {
 
 		conectar();
 
 		sentencia = c.createStatement();
 		
+		System.out.println(start);
+		System.out.println(end);
+		System.out.println(dniClient.length());
 		String consultaSql = "SELECT * from E_S ;";
 		
-		if (start != "" && end != "") {
+		if (start != "" && end != "" ) {
+			consultaSql = "SELECT * from E_S WHERE dniClient = '"+dniClient+"' AND date BETWEEN '"+start+"' AND '"+end+"';";
+		}
+		
+		if (start != "" && end != "" && dniClient.length()==0) {
 			consultaSql = "SELECT * from E_S WHERE date BETWEEN '"+start+"' AND '"+end+"';";
 		}
 		
+		
 		System.out.println(consultaSql);
+		
 		try {
 		     
 			ResultSet rs = sentencia.executeQuery(consultaSql);
